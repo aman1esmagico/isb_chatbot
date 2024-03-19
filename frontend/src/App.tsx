@@ -12,9 +12,9 @@ function App() {
   }, [userName]);
 
   return (
-      <>
+      <div className={'flex flex-col h-screen relative overflow-hidden'}>
           {userName ? <Chat /> : <Login />}
-      </>
+      </div>
   );
 }
 
