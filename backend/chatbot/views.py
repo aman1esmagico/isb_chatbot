@@ -29,7 +29,7 @@ def chatbot_controller(request):
 
             if user.started_conversation:
                 conversation_history = str(user.conversation)
-                relavant_response = get_relevant_Response(user_input, conversation_history)
+                relavant_response = get_relevant_Response(user_input, conversation_history, model="gpt-4-0125-preview")
                 print(type(relavant_response))
                 if not relavant_response['flag']:
                     print("returning the response for irrelavant user response")
@@ -148,7 +148,7 @@ def handle_state(user, user_input):
                                 "let me know whenever you are ready!"]}
 
         case 1:
-            response = get_questions_crafted(user, state+1)
+            response = get_questions_crafted(user, state+1, model='gpt-4-turbo-preview')
             user.conversation_summary = str(response)
             questions = response
             user.state = user.state + 1
@@ -172,8 +172,7 @@ def score_the_user_answer(question):
     scoring_task = f"""
                     for the above answer to the question: {question.question} where the base question is {question.base_question.question_base}
                     please score and return your reason for the scoring based on the criteria: {question.base_question.scoring_strategy}. Score should be between 1-5.
-                    return the response in following format so that i can split the text with '''||''': 
-                    1-5(for score)||reasoning for the score
+                    Also be mindful, the number of hints that candidates needed to come to this answer is {3-question.retry}.
                     """
     scoring_response = get_scoring_for_answer(question.answer, scoring_task, model="gpt-4-turbo-preview")
     score = scoring_response['score']

@@ -15,8 +15,7 @@ OPEN_AI_API_KEY = os.getenv('OPEN_AI_API_KEY')
 class Relevance_model(BaseModel):
     flag: bool = Field(
         description="whether the condition was true/false")
-    message: str = Field(description="try replying to the user input without making things up and "
-                                     "remind user back to complete the previous task by reminding him the task")
+    message: str = Field(description="message is for replying to the user prompt in polite way and remind him about the last question")
 
 
 class Yes_Or_No_Model(BaseModel):
@@ -55,23 +54,26 @@ def get_relevant_Response(user_input, conversation_history="", model="gpt-3.5-tu
     parser = JsonOutputParser(pydantic_object=Relevance_model)
     prompt_template = ("You are a ai interview bot  , "
                        "you have to take into consideration the last 5 conversation of the chat "
-                       "and user prompt is the answer to the last question asked by AI bot in conversation history"
-                       "(messages order is bottom(recent) to top(past)."
+                       "and human prompt is the answer to the last question asked by AI bot in conversation history"
+                       "(messages order is top(past) to bottom(recent)."
                        "\n{format_instructions}\n"
-                       "last 5 conversation history: '''{conversation_history}''' and the user prompt is: '''{user_input}''',"
-                       "if user is answering the question to the last question asked by AI (first priority) or question selected by the user(in the conversation history as second priority). "
-                       "Check the user prompt can be a part of the answer to question and user is trying to proceed further with the interview process"
+                       "last 5 conversation history: '''{conversation_history}''' and the human prompt is: '''{user_input}''',"
+                       "Condition: Do you think Human prompt fulfils all the the following things : \n  "
+                       "1. It is relavant to the question asked in conversation history\n"
+                       "2. it wants to continue with the process of the interview\n"
                        )
     prompt = PromptTemplate(
         input_variables=["conversation_history", "user_input"],
         template=prompt_template,
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
+
     relevant_chain = LLMChain(llm=ChatOpenAI(api_key=OPEN_AI_API_KEY, temperature=0, model=model), prompt=prompt)
     response = relevant_chain.run(conversation_history=get_conversation(conversation_history), user_input=user_input)
+    print(get_conversation(conversation_history))
     print("get_relevant_Response")
     print(response)
-    return json.loads(response.replace('True', 'true').replace('False', 'false'))
+    return json.loads(response.replace('True', 'true').replace('False', 'false').replace("```json", "").replace("```", ""))
 
 def get_follow_up_question(question, answer, model="gpt-3.5-turbo-0125"):
     prompt_template = ("You are a interview AI bot, given "
@@ -111,7 +113,7 @@ def get_scoring_for_answer(query, task, model="gpt-3.5-turbo-0125"):
     prompt_template = ("You are a interview AI bot, given "
                        "prompt: '''{query}'''"
                        "task for you: '''{task}'''. \n"
-                       "\n{format_instructions} (do not wrap around the json template)\n"
+                       "\n{format_instructions}\n"
                        "do the task and give me a crisp and clear reply to the question"
                        )
     prompt = PromptTemplate(
@@ -134,7 +136,7 @@ def get_questions_crafted(user, question_number, model="gpt-3.5-turbo-0125"):
         "user's Resume: '''{resume}'''\n Attribute: '''{base_question}'''\n previous questions: '''{previous_questions}'''\n"
         "\n{format_instructions}\n"
         "Create subtle and contextual questions out of resume based on Attribute."
-        "The question's language should be simple english and asked as if it is being asked by 50-year-old wise billionaire entrepreneur. "
+        "The question's language should be simple english and asked as if it is being asked by 50-year-old wise billionaire entrepreneur who has lot of insigth in all type of business. "
         "The purpose is to find out more about the user journey and judge the user on the Attribute"
         "Make sure you make only two question at a time and always MUST use nouns or instances from the resume in the question you have to create."
         "Stick to the resume. And try not to ask questions from the same part resume as mentioned in previous questions"
