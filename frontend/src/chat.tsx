@@ -24,11 +24,10 @@ function Chat() {
     console.log(isloading, 'list')
   }, [isloading])
   return (
-    <div className='flex h-[80vh] justify-center flex-col items-center'>
+    <div className='flex-1'>
       {/* <h1 className='pb-7 font-semibold'>ChatBot (ReactJS + Django + OpenAi)</h1> */}
-      <div className='border-black relative border-2 h-[667px] border- w-[375px] bg-[#ECECEC] mx-auto rounded-md'>
-        {/*<Header />*/}
-        <ul className='py-3 px-2 h-[587px] overflow-y-auto'>
+      <div className='border-black flex-1 border-2 bg-[#ECECEC] rounded-md h-screen' style={{paddingBottom: '60'}}>
+        <ul className='py-3 px-2 overflow-y-auto h-screen' style={{paddingBottom: '75px'}} >
           {list.map(item => {
             return (
               <>
@@ -39,10 +38,11 @@ function Chat() {
           <li>
            {isloading && <div className='flex justify-center items-center'><Loader /></div>}
           </li>
-
+          <PromptSubmit isloading={isloading} setIsLoading={setIsLoading} setList={setList} list={list} userId={userId}/>
         </ul>
-        <PromptSubmit isloading={isloading} setIsLoading={setIsLoading} setList={setList} list={list} userId={userId}/>
+
       </div>
+
     </div>
   );
 }

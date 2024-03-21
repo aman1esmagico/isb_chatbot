@@ -10,7 +10,9 @@ from chatbot.chatbotService.chartBotService import (get_relevant_Response,
                                                     get_yes_or_no_response,
                                                     get_questions_crafted,
                                                     get_follow_up_question,
-                                                    get_scoring_for_answer)
+                                                    get_scoring_for_answer,
+                                                    get_AI_Response,
+                                                    get_conversation)
 
 
 @api_view(['POST'])
@@ -27,8 +29,8 @@ def chatbot_controller(request):
 
             if user.started_conversation:
                 conversation_history = str(user.conversation)
-                relavant_response = json.loads(get_relevant_Response(user_input, conversation_history))
-                print(relavant_response)
+                relavant_response = get_relevant_Response(user_input, conversation_history, model="gpt-4-0125-preview")
+                print(type(relavant_response))
                 if not relavant_response['flag']:
                     print("returning the response for irrelavant user response")
                     return Response({"message": relavant_response['message'][:-1].split(".")}, status=200)
@@ -47,9 +49,10 @@ def chatbot_controller(request):
                 return Response({"message": CREATE_INTRO}, status=200)
 
             # for processing the state and get the response from the user
+            print("Relevance of user Input is passed")
             response = handle_state(user, user_input)
             # after processing
-            conversation_history =[{"Human": user_input},{"AI": response}]
+            conversation_history =[{"Human": user_input},{"AI": ".".join(response["message"])}]
             user.conversation.append(conversation_history)
             user.conversation = user.conversation[-5:]
             user.save()
@@ -71,7 +74,7 @@ def handle_state(user, user_input):
                      "2. Education background of the user.\n"
                      "3. personal details of the user.\n"
                 )
-        yes_or_no_dict = json.loads(get_yes_or_no_response(user_input, condition, model="gpt-4-0125-preview"))
+        yes_or_no_dict = get_yes_or_no_response(user_input, condition, model="gpt-4-0125-preview")
 
         if yes_or_no_dict["flag"] and len(user_input) > 200:
             user.state = user.state + 1
@@ -91,14 +94,16 @@ def handle_state(user, user_input):
     match state_reminder:
         case 0: # state for the answer acceptance and
             question = Question.objects.filter(user_id=user.id).last()
-            task = ("question asked to the user is:" +
-                    str(question.question) +
-                    " and the answer given by user:" + str(user_input) +
-                    ". Do you think it is the answer to the question asked to the user?")
-            yes_or_no = json.loads(get_yes_or_no_response(user_input, task))
+            task = ("question selected by the user is:" +
+                    str(question.question) + "and last 2 conversation : " + get_conversation(str(user.conversation[-2:])) +
+                    " and the reply given by user to last question is '''" + str(user_input) +
+                    "'''. Do you think the user's input can be a part of the answer to the question by AI bot?")
+
+            yes_or_no = get_yes_or_no_response(user_input, task)
             if not yes_or_no['flag']:
+                response = get_AI_Response(user_input, get_conversation(str(user.conversation[-2:])))
                 print("have to ask user to be relevant to the question asked")
-                return {"message": ["Please answer the following question", question.question]}
+                return {"message": response[:-1].split(".")}
             else:
                 question.answer = str(question.answer) + str(user_input)
                 question.save()
@@ -118,8 +123,8 @@ def handle_state(user, user_input):
 
             scoring_criteria = question.base_question.scoring_strategy
             answer_task = f"""Do you think it is enough for you to judge based on the criteria: {scoring_criteria} for the question {question.question}.?"""
-            yes_or_no_answer = json.loads(get_yes_or_no_response(user_answer, answer_task))
-            if not yes_or_no_answer['flag']:
+            yes_or_no_answer = get_yes_or_no_response(user_answer, answer_task)
+            if (not yes_or_no_answer['flag']) and len(user_answer.split(" ")) < 100:
                 follow_up_question = get_follow_up_question(question.question, user_answer)
                 if question.retry < 2:
                     user.state = user.state + 1
@@ -133,27 +138,27 @@ def handle_state(user, user_input):
                 question.retry = question.retry - 1
                 question.save()
                 return {"message": [follow_up_question]}
-            else:
-                score_the_user_answer(question)
-                user.state = user.state + 1
-                user.task = (
-                    "Human task is to tell the Ai bot for whenever they is ready!")
-                user.save()
-                return {"message": ["thanks for the answer.", "lets move on to next question.",
-                                    "let me know whenever you are ready!"]}
+
+            score_the_user_answer(question)
+            user.state = user.state + 1
+            user.task = (
+                "Human task is to tell the Ai bot for whenever they is ready!")
+            user.save()
+            return {"message": ["thanks for the answer.", "lets move on to next question.",
+                                "let me know whenever you are ready!"]}
 
         case 1:
-            response = get_questions_crafted(user, state+1)
-            user.conversation_summary = response
-            questions = json.loads(response)
+            response = get_questions_crafted(user, state+1, model='gpt-4-turbo-preview')
+            user.conversation_summary = str(response)
+            questions = response
             user.state = user.state + 1
             user.task = ("Human task is to answer the question, that was selected ")
             user.save()
-            return {"message": ["Please select any one of the following question you want to answer", questions['question1'], questions['question2']] }
+            return {"message": ["Please copy and paste any one of the following question you want to answer", questions['question1'], questions['question2']] }
         case 2:
-            if not user_input in user.conversation_summary:
-                questions = json.loads(user.conversation_summary)
-                return {"message": ["Please select on of the question mentioned only", questions["question1"], questions["question2"]]}
+            questions = eval(user.conversation_summary)
+            if not (user_input == questions['question1'] or user_input == questions['question2']):
+                return {"message": ["Please copy and paste any one of the question mentioned only", questions["question1"], questions["question2"]]}
             base_question = BaseQuestion.objects.get(question_order=state + 1)
             question = Question.objects.create(base_question=base_question, question=user_input, answer="", user_id=user.id)
             user.task = ("Human task is to let us know, whenever he is ready to continue the interview")
@@ -165,12 +170,11 @@ def handle_state(user, user_input):
 
 def score_the_user_answer(question):
     scoring_task = f"""
-                                    for the above answer to the question: {question.question} where the base question is {question.base_question.question_base}
-                                    please score and return your reason for the scoring based on the criteria: {question.base_question.scoring_strategy}. Score should be between 1-5.
-                                    return the response in following format so that i can split the text with '''||''': 
-                                    1-5(for score)||reasoning for the score
-                                    """
-    scoring_response = json.loads(get_scoring_for_answer(question.answer, scoring_task, model="gpt-4-turbo-preview"))
+                    for the above answer to the question: {question.question} where the base question is {question.base_question.question_base}
+                    please score and return your reason for the scoring based on the criteria: {question.base_question.scoring_strategy}. Score should be between 1-5.
+                    Also be mindful, the number of hints that candidates needed to come to this answer is {3-question.retry}.
+                    """
+    scoring_response = get_scoring_for_answer(question.answer, scoring_task, model="gpt-4-turbo-preview")
     score = scoring_response['score']
     reason_for_score = scoring_response['reasoning']
     question.score = score

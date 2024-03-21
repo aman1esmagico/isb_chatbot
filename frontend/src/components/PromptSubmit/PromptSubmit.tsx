@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, {useEffect, useState} from 'react'
 import { SubmitIcon } from '../Common/Icons';
 
 
@@ -20,8 +20,7 @@ interface PromptSubmitProps {
 
 const PromptSubmit: React.FC<PromptSubmitProps> = ({list, setList, isloading, setIsLoading, userId}) => {
     const [prompt, setPrompt] = useState<string>("")
-
-    const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
+    const submitHandler = async (e: any) => {
         e.preventDefault()
         setIsLoading(true)
         if (prompt.trim() === ""){
@@ -49,14 +48,22 @@ const PromptSubmit: React.FC<PromptSubmitProps> = ({list, setList, isloading, se
         }
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // Prevent the default behavior of new line
+            submitHandler(e); // Call submitHandler when Enter is pressed
+        }
+    };
     return (
-        <div className='absolute bottom-0 w-full mb-1'>
-            <form onSubmit={submitHandler} className='relative' style={{display: 'flex'}}>
-                {isloading && <label className='bg-[#d2cfcf] text-white px-2 w-full'>Asking...</label>} 
-                <input style={{flex: 1}} className='w-full py-3 pl-2 pr-[50px] outline-none rounded-b-sm' value={prompt} onChange={(e) => setPrompt(e.target.value)} type="text" placeholder='Enter prompt' />
-                <button disabled={isloading} type='submit' className='right-4 bottom-0 top-0'><SubmitIcon /></button>
+        <div className='absolute bottom-0 w-full mb-1 bg-white' style={{maxHeight: '100px', overflowY: 'auto'}}>
+            <form id={'prompt-input'} onSubmit={submitHandler} className='relative' style={{display: 'flex'}}>
+                {isloading && <label className='bg-[#d2cfcf] text-white px-2 w-full'>Asking...</label>}
+                <textarea style={{flex: 1}} className='w-full py-3 pl-2 pr-[5px] outline-none rounded-b-sm resize-none'
+                          value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder='Enter prompt' onKeyDown={handleKeyDown}/>
+                <button  disabled={isloading} type='submit' className='right-4 bottom-0 top-0'><SubmitIcon/></button>
             </form>
         </div>
+
     )
 }
 
