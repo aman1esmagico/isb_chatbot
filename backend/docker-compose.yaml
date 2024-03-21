@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: bash -c "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 backend.wsgi:application"
+    volumes:
+      - ./your_local_folder:/app/backend/static  # Mount a volume for static files
+
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: interview_system
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data  # Mount a volume for PostgreSQL data
