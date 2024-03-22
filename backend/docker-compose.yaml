@@ -7,10 +7,9 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    command: bash -c "python manage.py migrate && gunicorn --bind 0.0.0.0:8000 backend.wsgi:application"
+    command: bash -c "gunicorn --bind 0.0.0.0:8000 backend.wsgi:application"
     volumes:
-      - ./your_local_folder:/app/backend/static  # Mount a volume for static files
-
+      - ./backend:/app/backend/static  # Mount a volume for static files
 
   db:
     image: postgres:latest

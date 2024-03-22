@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'chatbot',
-        'USER': 'postgres',
-        'PASSWORD': 'password',
+        'NAME': 'interview_system',
+        'USER': 'admin',
+        'PASSWORD': 'secret',
         'HOST': 'db',  # Or your database host
         'PORT': '5432',       # Or your database port
     }
@@ -125,9 +125,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_ROOT = str(BASE_DIR) + '/static/'
+STATIC_URL = str(STATIC_ROOT) + '/static/'
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',  
+    '*',
 )
 
 REST_FRAMEWORK = {

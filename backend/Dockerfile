@@ -17,8 +17,9 @@ RUN pip install -r requirement.txt
 
 
 # Run migrations and collect static files
-RUN python manage.py migrate
-RUN python manage.py collectstatic --noinput
+RUN #python manage.py collectstatic
+RUN python manage.py check
+
 
 COPY env.example ./.env
 # Expose port 8000
