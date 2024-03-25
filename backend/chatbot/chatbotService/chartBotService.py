@@ -128,14 +128,14 @@ def get_scoring_for_answer(query, task, model="gpt-3.5-turbo-0125"):
     return json.loads(response.replace("```json", "").replace("```", ""))
 
 def get_questions_crafted(user, question_number, model="gpt-3.5-turbo-0125"):
-    parser = JsonOutputParser(pydantic_object=Question_Choice)
+    parser = SimpleJsonOutputParser(pydantic_object=Question_Choice)
     base_question = BaseQuestion.objects.get(question_order=question_number)
     questions = Question.objects.filter(user_id=user.id).values_list('question', flat=True)
 
     question_prompt_system_message = (
         "user's Resume: '''{resume}'''\n Attribute: '''{base_question}'''\n previous questions: '''{previous_questions}'''\n"
+        "Create two subtle and contextual questions out of resume based on Attribute."
         "\n{format_instructions}\n"
-        "Create subtle and contextual questions out of resume based on Attribute."
         "The question's language should be simple english and asked as if it is being asked by 50-year-old wise billionaire entrepreneur who has lot of insigth in all type of business. "
         "The purpose is to find out more about the user journey and judge the user on the Attribute"
         "Make sure you make only two question at a time and always MUST use nouns or instances from the resume in the question you have to create."

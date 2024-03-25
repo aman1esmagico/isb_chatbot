@@ -128,7 +128,7 @@ USE_TZ = True
 STATIC_ROOT = str(BASE_DIR) + '/static/'
 STATIC_URL = str(STATIC_ROOT) + '/static/'
 CORS_ORIGIN_WHITELIST = (
-    '*',
+    'http://localhost:3000',
 )
 
 REST_FRAMEWORK = {
