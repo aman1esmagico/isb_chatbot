@@ -21,7 +21,7 @@ function Chat() {
       setList(JSON.parse(conversation))
     }
     console.log(isloading, 'list')
-  }, [isloading, list.length, userName])
+  }, [isloading, userName])
   return (
     <div className='flex-1'>
       {/* <h1 className='pb-7 font-semibold'>ChatBot (ReactJS + Django + OpenAi)</h1> */}
