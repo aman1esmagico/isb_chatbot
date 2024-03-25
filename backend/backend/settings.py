@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-kobm$q1#&t&ineli6^c*coa)4d11a)y1%fq-x8rt%*qpu$(!$7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['http://ivi_isb.esmagico.net', 'http://localhost:3000']
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
