@@ -26,10 +26,10 @@ SECRET_KEY = 'django-insecure-kobm$q1#&t&ineli6^c*coa)4d11a)y1%fq-x8rt%*qpu$(!$7
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'https://ivi-isb.esmagico.net',
-    'http://127.0.0.1',
-    'https://ivi-isb-backend.esmagico.net',
-    '*'
+    'ivi-isb.esmagico.net',
+    '127.0.0.1',
+    '0.0.0.0',
+    'ivi-isb-backend.esmagico.net',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -130,8 +130,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_ROOT = str(BASE_DIR) + '/static/'
-STATIC_URL = str(STATIC_ROOT) + '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_URL = '/static/'
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
 )
