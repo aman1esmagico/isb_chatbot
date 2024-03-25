@@ -22,7 +22,7 @@ function Login() {
         localStorage.setItem('name', data.name); // Example storage
         localStorage.setItem('userId', data.id); // Example storage
         // Redirect to a different page if successful
-        window.location.href = '/chat'; // Update with your desired route
+        window.location.href = '/'; // Update with your desired route
       } else {
         // Handle failed login (e.g., display an error message)
         console.error('Login failed:', response.status);
