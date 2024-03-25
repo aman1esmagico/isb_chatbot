@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
 
-interface PromptData {
-    prompt: string | null;
-    bot: any;
-}
-
 const Message = ({ item }: any) => {
     const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
 

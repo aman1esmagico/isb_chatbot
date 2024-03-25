@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Header from './components/Header/Header';
 import PromptSubmit from './components/PromptSubmit/PromptSubmit';
 import Message from './components/Message/Message';
 import Loader from './components/Common/Loader';
@@ -17,12 +16,12 @@ function Chat() {
   useEffect(() => {
     setUserId(localStorage.getItem("userId")||"")
     setUserName(localStorage.getItem("name")||"")
-    if(list.length == 0 && localStorage.getItem("conversation")) {
+    if(list.length === 0 && localStorage.getItem("conversation")) {
       const conversation = localStorage.getItem("conversation") || ""
       setList(JSON.parse(conversation))
     }
     console.log(isloading, 'list')
-  }, [isloading])
+  }, [isloading, list.length, userName])
   return (
     <div className='flex-1'>
       {/* <h1 className='pb-7 font-semibold'>ChatBot (ReactJS + Django + OpenAi)</h1> */}
