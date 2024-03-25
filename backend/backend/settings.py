@@ -26,13 +26,12 @@ SECRET_KEY = 'django-insecure-kobm$q1#&t&ineli6^c*coa)4d11a)y1%fq-x8rt%*qpu$(!$7
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'http://ivi-isb.esmagico.net',
-    'http://127.0.0.1:3000',
-    'http://127.0.0.1:8000',
-    'http://ivi-isb-backend.esmagico.net',
-    'http://ivi-isb-backend.esmagico.net'
+    'https://ivi-isb.esmagico.net',
+    'http://127.0.0.1',
+    'https://ivi-isb-backend.esmagico.net',
+    '*'
 ]
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Application definition
 
@@ -92,7 +91,7 @@ DATABASES = {
         'NAME': 'interview_system',
         'USER': 'admin',
         'PASSWORD': 'secret',
-        'HOST': 'db',  # Or your database host
+        'HOST': '172.17.0.1',  # Or your database host
         'PORT': '5432',       # Or your database port
     }
 }
