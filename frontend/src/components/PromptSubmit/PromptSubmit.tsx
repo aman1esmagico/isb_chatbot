@@ -29,7 +29,7 @@ const PromptSubmit: React.FC<PromptSubmitProps> = ({list, setList, isloading, se
             return
         }
         try {
-            const response = await fetch('http://127.0.0.1:8000/api/chatbot/talk/', {
+            const response = await fetch('http://ivi_isb_backend.esmagico.net/api/chatbot/talk/', {
                 method: "POST",
                 body:JSON.stringify({ prompt: prompt, userId: parseInt(userId)}),
                 headers: {

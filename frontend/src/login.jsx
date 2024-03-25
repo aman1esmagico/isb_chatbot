@@ -11,7 +11,7 @@ function Login() {
     event.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8000/api/user/login/', { // Your API endpoint
+      const response = await fetch('http://ivi_isb_backend.esmagico.net/api/user/login/', { // Your API endpoint
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: username, password: password }),
