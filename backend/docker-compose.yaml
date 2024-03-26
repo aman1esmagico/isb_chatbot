@@ -8,6 +8,8 @@ services:
     depends_on:
       - db
     command: bash -c "gunicorn --bind 0.0.0.0:8000 backend.wsgi:application"
+    environment:
+      OPEN_AI_API_KEY: ${OPEN_AI_API_KEY}
     volumes:
       - ./backend:/app/backend/static  # Mount a volume for static files
 

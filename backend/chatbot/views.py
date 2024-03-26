@@ -134,7 +134,7 @@ def handle_state(user, user_input):
                     question.retry = question.retry - 1
                     score_the_user_answer(question)
                     return {"message": ["thanks for trying to answer the question", "Lets move on to next question",
-                                        "Let me know whenever you are ready!"]}
+                                        "Let me know whenever you are ready!"], "options": ['Yes', 'No'] , "prompt": "option_selection" }
                 question.retry = question.retry - 1
                 question.save()
                 return {"message": [follow_up_question]}
@@ -145,7 +145,8 @@ def handle_state(user, user_input):
                 "Human task is to tell the Ai bot for whenever they is ready!")
             user.save()
             return {"message": ["thanks for the answer.", "lets move on to next question.",
-                                "let me know whenever you are ready!"]}
+                                "let me know whenever you are ready!"],
+                    "options": ['Yes', 'No'], "prompt": "option_selection" }
 
         case 1:
             response = get_questions_crafted(user, state+1, model='gpt-4-turbo-preview')
@@ -154,11 +155,15 @@ def handle_state(user, user_input):
             user.state = user.state + 1
             user.task = ("Human task is to answer the question, that was selected ")
             user.save()
-            return {"message": ["Please copy and paste any one of the following question you want to answer", questions['question1'], questions['question2']] }
+            return {"message": ["Please select any one of the following question you want to answer",
+                                    questions["question1"], questions["question2"] ],
+                    "options": [questions['question1'], questions['question2']] , "prompt": "option_selection" }
         case 2:
             questions = eval(user.conversation_summary)
             if not (user_input == questions['question1'] or user_input == questions['question2']):
-                return {"message": ["Please copy and paste any one of the question mentioned only", questions["question1"], questions["question2"]]}
+                return {"message": ["Please select any one of the question mentioned only",
+                                    questions["question1"], questions["question2"]],
+                        "options": [questions['question1'], questions['question2']], "prompt": "option_selection" }
             base_question = BaseQuestion.objects.get(question_order=state + 1)
             question = Question.objects.create(base_question=base_question, question=user_input, answer="", user_id=user.id)
             user.task = ("Human task is to let us know, whenever he is ready to continue the interview")

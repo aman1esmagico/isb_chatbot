@@ -25,7 +25,6 @@ COPY env.example ./.env
 # Expose port 8000
 EXPOSE 8000
 
-RUN #python manage.py runserver
 
 # Command to run the application
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]

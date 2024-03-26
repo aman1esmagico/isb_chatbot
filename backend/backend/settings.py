@@ -27,12 +27,22 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'ivi-isb.esmagico.net',
-    '127.0.0.1',
+    'localhost',
     '0.0.0.0',
+    '127.0.0.1'
     'ivi-isb-backend.esmagico.net',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
+CSRF_TRUSTED_ORIGINS=['http://*.esmagico.net']
+CSRF_COOKIE_DOMAIN = '.esmagico.net'
+
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_FILES_DIRS = [
+     os.path.join(BASE_DIR, 'static'),
+]
 # Application definition
 
 INSTALLED_APPS = [
@@ -91,7 +101,7 @@ DATABASES = {
         'NAME': 'interview_system',
         'USER': 'admin',
         'PASSWORD': 'secret',
-        'HOST': '172.17.0.1',  # Or your database host
+        'HOST': '0.0.0.0',  # Or your database host
         'PORT': '5432',       # Or your database port
     }
 }
@@ -130,11 +140,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATIC_URL = '/static/'
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-)
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
