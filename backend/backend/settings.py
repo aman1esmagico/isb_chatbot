@@ -101,7 +101,7 @@ DATABASES = {
         'NAME': 'interview_system',
         'USER': 'admin',
         'PASSWORD': 'secret',
-        'HOST': '0.0.0.0',  # Or your database host
+        'HOST': '172.17.0.1',  # Or your database host
         'PORT': '5432',       # Or your database port
     }
 }
