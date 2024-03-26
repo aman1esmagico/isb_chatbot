@@ -30,9 +30,10 @@ ALLOWED_HOSTS = [
     'localhost',
     '0.0.0.0',
     '127.0.0.1'
+    '98.70.79.57',
     'ivi-isb-backend.esmagico.net',
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
 CSRF_TRUSTED_ORIGINS=['http://*.esmagico.net']
 CSRF_COOKIE_DOMAIN = '.esmagico.net'
@@ -52,10 +53,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.postgres',
     'django.contrib.messages',
+    'corsheaders',
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
     'chatbot',
     'user'
 ]

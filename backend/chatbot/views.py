@@ -95,9 +95,10 @@ def handle_state(user, user_input):
         case 0: # state for the answer acceptance and
             question = Question.objects.filter(user_id=user.id).last()
             task = ("question selected by the user is:" +
-                    str(question.question) + "and last 2 conversation : " + get_conversation(str(user.conversation[-2:])) +
-                    " and the reply given by user to last question is '''" + str(user_input) +
-                    "'''. Do you think the user's input can be a part of the answer to the question by AI bot?")
+                    str(question.question) + "and last 4 conversation(bottom being the most recent) : "
+                    "'''" + get_conversation(str(user.conversation[-4:])) + "''' and "
+                    "the reply given by user is '''" + str(user_input) +
+                    "'''. Do you think the user's reply can be a part of the answer to the questions by AI bot?")
 
             yes_or_no = get_yes_or_no_response(user_input, task)
             if not yes_or_no['flag']:
