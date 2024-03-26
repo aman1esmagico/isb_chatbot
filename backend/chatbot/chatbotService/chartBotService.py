@@ -15,7 +15,7 @@ OPEN_AI_API_KEY = os.getenv('OPEN_AI_API_KEY')
 class Relevance_model(BaseModel):
     flag: bool = Field(
         description="whether the condition was true/false")
-    message: str = Field(description="message is for replying to the user prompt in polite way and remind him about the last question")
+    message: str = Field(description="message is for replying to the user prompt in cute way and remind them about the last question")
 
 
 class Yes_Or_No_Model(BaseModel):
@@ -55,11 +55,10 @@ def get_relevant_Response(user_input, conversation_history="", model="gpt-3.5-tu
     prompt_template = ("You are a ai interview bot  , "
                        "you have to take into consideration the last 5 conversation of the chat "
                        "and human prompt is the answer to the last question asked by AI bot in conversation history"
-                       "(messages order is top(past) to bottom(recent)."
                        "\n{format_instructions}\n"
-                       "last 5 conversation history: '''{conversation_history}''' and the human prompt is: '''{user_input}''',"
+                       "last 5 conversation history (messages order is bottom message is latest messages): '''{conversation_history}''' and the human prompt is: '''{user_input}''',"
                        "Condition: Do you think Human prompt fulfils all the the following things : \n  "
-                       "1. It is relavant to the question asked in conversation history\n"
+                       "1. It is relavant to the last question asked in conversation history\n"
                        "2. it wants to continue with the process of the interview\n"
                        )
     prompt = PromptTemplate(
