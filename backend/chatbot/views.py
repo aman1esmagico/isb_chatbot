@@ -38,7 +38,8 @@ def chatbot_controller(request):
                 CREATE_INTRO = [
                     "Hello! I am an AI bot designed to conduct a swift, smart, and precise interview process.",
                     "I will begin by generating a unique question based on the resume you provide.",
-                    "Please provide the candidate's resume text of at least 100 characters for a productive conversation:"
+                    "Please provide the candidate's resume text of at least 200 characters with personal details,"
+                    " education background and work experience for a productive conversation:"
                 ]
                 conversation_history = [{"Human": user_input}, {"AI": "".join(CREATE_INTRO)}]
                 user.conversation.append(conversation_history)
@@ -52,7 +53,7 @@ def chatbot_controller(request):
             print("Relevance of user Input is passed")
             response = handle_state(user, user_input)
             # after processing
-            conversation_history =[{"Human": user_input},{"AI": ".".join(response["message"])}]
+            conversation_history =[{"Human": user_input}, {"AI": ".".join(response["message"])}]
             user.conversation.append(conversation_history)
             user.conversation = user.conversation[-5:]
             user.save()
@@ -94,6 +95,7 @@ def handle_state(user, user_input):
     match state_reminder:
         case 0: # state for the answer acceptance and
             question = Question.objects.filter(user_id=user.id).last()
+
             task = ("question selected by the user is:" +
                     str(question.question) + "and last 4 conversation(bottom being the most recent) : "
                     "'''" + get_conversation(str(user.conversation[-4:])) + "''' and "
@@ -109,7 +111,7 @@ def handle_state(user, user_input):
                 question.answer = str(question.answer) + str(user_input)
                 question.save()
             user_answer = question.answer
-            if len(user_answer) < 100:
+            if len(user_answer.split(" ")) > 100:
                 if question.retry < 2:
                     user.state = user.state + 1
                     user.task = ("Human task is to select one out of the two question, which was created by AI interview bot")
@@ -135,7 +137,7 @@ def handle_state(user, user_input):
                     question.retry = question.retry - 1
                     score_the_user_answer(question)
                     return {"message": ["thanks for trying to answer the question", "Lets move on to next question",
-                                        "Let me know whenever you are ready!"], "options": ['Yes', 'No'] , "prompt": "option_selection" }
+                                        "Let me know whenever you are ready!"]}
                 question.retry = question.retry - 1
                 question.save()
                 return {"message": [follow_up_question]}
@@ -146,8 +148,7 @@ def handle_state(user, user_input):
                 "Human task is to tell the Ai bot for whenever they is ready!")
             user.save()
             return {"message": ["thanks for the answer.", "lets move on to next question.",
-                                "let me know whenever you are ready!"],
-                    "options": ['Yes', 'No'], "prompt": "option_selection" }
+                                "let me know whenever you are ready!"]}
 
         case 1:
             response = get_questions_crafted(user, state+1, model='gpt-4-turbo-preview')
